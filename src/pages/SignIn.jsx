@@ -1,22 +1,32 @@
 import React, {useContext} from 'react';
 import {Link} from 'react-router-dom';
 import {AuthContext} from "../context/AuthContext";
+import {useForm} from 'react-hook-form';
+import axios from "axios";
 
 function SignIn() {
     const {login} = useContext(AuthContext);
-    const handleSubmit = (e) => {
-        e.preventDefault(); // Dit voorkomt het standaardgedrag van een formulierindiening
+    const {register, handleSubmit} = useForm();
 
-        // Voer hier de inloglogica uit, bijvoorbeeld via een API-aanroep of andere relevante functies.
-        // Veronderstel dat je een functie 'login' hebt in je context die inlogt.
-        login();
-    };
-
-    // Of andere schrijfwijze. Let op, niet nodig bij React Hook Form
-    // function handleSubmit(e) {
+    // normale schrijfwijze; niet nodig bij hookform
+    // function handleFormSubmit(e) {
     //     e.preventDefault();
     //     login();
     // }
+ async function handleFormSubmit(data) {
+     const formData = {
+         email: data.email,
+         password: data.password,
+     }
+        try {
+            const response = await axios.post("http://localhost:3000/login", formData);
+            console.log(response)
+            login(response.data.accessToken);
+
+        } catch (e) {
+            console.error(e);
+        }
+    }
 
     return (
         <>
@@ -24,13 +34,36 @@ function SignIn() {
             <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ab alias cum debitis dolor dolore fuga id
                 molestias qui quo unde?</p>
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit(handleFormSubmit)}>
                 <label htmlFor="e-mail-field">E-mail adres</label>
                 <input type="text"
-                       id="e-mail-field"/>
+                       id="e-mail-field"
+                       {...register("email", {
+                           required: {
+                               value: true,
+                               // validate: (value) => value.includes('@'),
+                               message: 'e-mail adres moet "@" bevatten',
+                           },
+                       })}
+                />
                 <label htmlFor="password-field">Wachtwoord</label>
                 <input type="text"
-                       id="password-field"/>
+                       id="password-field"
+                       {...register("password", {
+                           required: {
+                               value: true,
+                               message: 'Dit veld is verplicht'
+                           },
+                           minLength: {
+                               value: 7,
+                               message: "Moet minstens 7 karakters bevatten"
+                           },
+                           maxLength: {
+                               value: 12,
+                               message: "Mag niet meer dan 12 karakters bevatten"
+                           },
+                       })}
+                />
                 <button type="submit">Inloggen</button>
             </form>
 

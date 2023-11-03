@@ -1,5 +1,7 @@
 import {createContext, useState} from "react";
 import {useNavigate} from "react-router-dom";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 export const AuthContext = createContext({});
 const AuthContextProvider = ({children}) => {
@@ -8,25 +10,49 @@ const AuthContextProvider = ({children}) => {
         user: null,
     });
     const navigate = useNavigate();
-    function login() {
+
+     async function login(token) {
+         // de token opslaan in de LS
+         localStorage.setItem('token', token);
+
+         // informatie uit de token decoderen (niet vergeten te installeren)
+         const userinfo = jwtDecode(token);
+         const userId = userinfo.sub;
+
+         try {
+             const response = await axios.get(`http://localhost:3000/600/users/${userId}`, {
+                //  headers moeten er in staan ter verificatie dat jij de gebruiker bent, precies deze syntax;
+                headers: {
+                   "Content-Type": 'application/json',
+                   Authorization: `Bearer ${token}`,
+                }
+             });
+             console.log(response)
+
+             //  informatie + auth true in state zetten
+             toggleIsAuth({
+                 isAuthenticated: true,
+                 user: {
+                     username: response.data.username,
+                     email: response.data.email,
+                     id: response.data.id,
+                 }
+             });
+
+         } catch (e) {
+             console.error(e);
+         }
+
         console.log('Gebruiker is ingelogd!');
-        toggleIsAuth({
-            isAuthenticated: true,
-            user: {
-                username: '',
-                email: '',
-                id: '',
-            }
-        });
         navigate('/profile');
     }
 
     function logout() {
-        console.log('Gebruiker is uitgelogd!');
         toggleIsAuth({
             isAuthenticated: false,
             user: null,
         });
+        console.log('Gebruiker is uitgelogd!');
         navigate('/');
     }
 

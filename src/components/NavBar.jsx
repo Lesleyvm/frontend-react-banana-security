@@ -7,11 +7,6 @@ function NavBar() {
   const navigate = useNavigate();
   const {isAuth, login, logout} = useContext(AuthContext);
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    login();
-  };
-
   return (
     <nav>
         <Link to="/">
@@ -26,7 +21,7 @@ function NavBar() {
       <div>
         <button
           type="button"
-          onClick={handleLogin}
+          onClick={() => navigate('/signin')}
         >
           Log in
         </button>

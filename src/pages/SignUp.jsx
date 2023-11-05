@@ -1,10 +1,12 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
 import {useForm} from 'react-hook-form';
+import {useNavigate} from "react-router-dom";
 import axios from "axios";
 
 function SignUp() {
     const {register, handleSubmit} = useForm();
+    const navigate = useNavigate();
 
     async function handleFormSubmit(data) {
         const formData = {
@@ -15,7 +17,7 @@ function SignUp() {
 
         try {
             const response = await axios.post("http://localhost:3000/register", formData);
-            navigate('/signing');
+            navigate('/signin');
             console.log(response);
 
         } catch (e) {

@@ -48,6 +48,9 @@ const AuthContextProvider = ({children}) => {
     }
 
     function logout() {
+        //  token uit de LS verwijderen
+        localStorage.removeItem('token');
+
         toggleIsAuth({
             isAuthenticated: false,
             user: null,
